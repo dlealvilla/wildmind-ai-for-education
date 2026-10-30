@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/brand/banner.png" alt="WildMind AI Education" width="100%"></p>
+<p align="center"><img src="docs/brand/banner.png" alt="WildMind AI for Education" width="100%"></p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-C4A35A?style=flat-square&labelColor=1A0E08)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white&labelColor=1A0E08)](https://www.typescriptlang.org/)
