@@ -1,7 +1,28 @@
 # Wildmind Education — AI LMS
 
-Multi-tenant learning management system for written assessments with an integrated AI writing assistant. Students draft in a TipTap rich-text editor beside a Gemini-powered chat panel; teachers open or close assessments, attach brief PDFs, review attempts (including AI chat and insertions), and mark out of 100; admins see tenant users, courses, and stats. Built as a Vite + React SPA with Vercel serverless APIs and PostgreSQL via Prisma.
+**Let students use AI for their assessments, in the open, where teachers can see it.**
 
+## The problem
+
+Students already use AI for their assessments and homework. They do it in another tab and paste the result in, and nobody can see it. Teachers can't tell what the student wrote and what the AI wrote. Detection tools guess and often get it wrong. Banning AI doesn't work and doesn't prepare students for a world where AI is everywhere.
+
+## The approach
+
+Wildmind brings the AI inside the assignment instead of fighting it from outside.
+
+1. **No copy and paste.** The writing space blocks paste and drag-and-drop, so text can't arrive from an outside AI tool.
+2. **AI built into the writing.** Students get an AI assistant right next to their work. They can ask it questions and insert its suggestions, and every insertion is marked in the document.
+3. **Tracked and controlled.** Each prompt, reply and inserted passage is saved with the attempt. Teachers see exactly where AI helped and where the student did the work, and they decide when and how much AI is allowed.
+4. **AI use compared with real knowledge.** Because AI use is recorded rather than guessed, it can be weighed against what the student shows they know. That rewards both skills: learning the material, and learning to work well with AI.
+
+## How it works today
+
+- Students write in a rich-text editor with a Gemini-powered assistant beside it. Paste and drop are blocked, and AI-inserted text is highlighted and logged.
+- Each attempt saves the document, the full AI chat and every AI insertion.
+- Teachers open and close assessments, attach a brief, review each attempt with its AI history, and mark it out of 100.
+- Admins see the users, courses and overall stats for their school.
+
+**Next on the roadmap:** per-student analytics that compare AI reliance with demonstrated knowledge, plus AI-use settings for each assessment.
 
 ## Live demo
 
@@ -149,8 +170,6 @@ vercel.json
 
 ## Screenshots
 
-> Note: these were captured while production CSS was broken; re-shoot after the Tailwind fix is deployed.
-
 | View | Screenshot |
 | --- | --- |
 | Teacher dashboard | ![Teacher dashboard](docs/screenshots/teacher-dashboard.png) |
@@ -160,4 +179,4 @@ vercel.json
 
 ## License
 
-TODO: choose a licence (none selected yet).
+[MIT](LICENSE)
