@@ -99,6 +99,12 @@ export function TeacherAssessment() {
     navigate(`/teacher/courses/${courseId}/students/${studentId}`);
   };
 
+  const handleOpenAnalytics = () => {
+    navigate(
+      `/teacher/courses/${courseId}/students/${studentId}/assessments/${assessmentId}/analytics`,
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-wood">
@@ -139,6 +145,7 @@ export function TeacherAssessment() {
       pdfUrl={assessment.pdfBlobUrl}
       pdfFileName={assessment.pdfFileName}
       onBack={handleBack}
+      onOpenAnalytics={handleOpenAnalytics}
     />
   );
 }
