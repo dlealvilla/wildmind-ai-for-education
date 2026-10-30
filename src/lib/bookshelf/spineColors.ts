@@ -46,11 +46,11 @@ export function spineGradient(palette: SpinePalette): string {
 export function spineHeight(code: string, base = 260, spread = 50): number {
   let hash = 0;
   for (let i = 0; i < code.length; i++) hash = (hash * 33 + code.charCodeAt(i)) >>> 0;
-  return base + (hash % range) - Math.floor(range / 4);
+  return base + (hash % spread) - Math.floor(spread / 4);
 }
 
-export function spineWidth(code: string, base = 58, range = 18): number {
+export function spineWidth(code: string, base = 58, spread = 18): number {
   let hash = 0;
   for (let i = 0; i < code.length; i++) hash = (hash * 37 + code.charCodeAt(i)) >>> 0;
-  return base + (hash % range);
+  return base + (hash % spread);
 }
