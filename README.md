@@ -1,7 +1,39 @@
-# Wildmind Education — AI LMS
+# WildMind AI Education
 
-Multi-tenant learning management system for written assessments with an integrated AI writing assistant. Students draft in a TipTap rich-text editor beside a Gemini-powered chat panel; teachers open or close assessments, attach brief PDFs, review attempts (including AI chat and insertions), and mark out of 100; admins see tenant users, courses, and stats. Built as a Vite + React SPA with Vercel serverless APIs and PostgreSQL via Prisma.
+**Assignments. AI. Critical Thinking. Measured.**
 
+AI is not the problem. Invisible AI usage is.
+
+Students already use AI for assessments. When that happens in another tab, teachers see only the final text — no prompts, no revisions, no sense of whether the student challenged the model or copied it. Banning AI does not stop it; it pushes usage underground and removes visibility. Detection tools guess after the fact and often get it wrong.
+
+WildMind brings AI inside the academic process so it becomes **observable, teachable, and evaluable**.
+
+## The approach
+
+Teacher → Student → Insight.
+
+1. **No copy and paste.** The writing space blocks paste and drag-and-drop, so text cannot arrive from an outside AI tool.
+2. **AI built into the writing.** Students get an assistant beside their work. They can ask questions and insert suggestions; every insertion is marked in the document.
+3. **Tracked and controlled.** Prompts, replies, and inserted passages are saved with the attempt. Teachers see where AI helped and where the student did the work, and they decide when AI is allowed.
+4. **AI use weighed against real knowledge.** Because usage is recorded rather than guessed, it can be compared with what the student shows they know — domain knowledge, effort, and AI literacy together.
+
+That rewards both skills: learning the material, and learning to work well with AI.
+
+## How it works today
+
+- Students write in a rich-text editor with a Gemini-powered tutor beside it. Paste and drop are blocked; AI-inserted text is highlighted and logged.
+- Each attempt saves the document, the full tutor chat, and every AI insertion (`AssessmentAttempt.state`).
+- Teachers open and close assessments, attach a brief, review each attempt with its AI history, and mark it out of 100.
+- An educator-only **Attempt Analytics** view shows Domain Knowledge Integration and AI Usage composites (with subscores) per attempt — currently a **preview on sample data**, clearly labelled in the UI. It is not yet computed from live attempts.
+- Admins see users, courses, and overall stats for their school.
+
+**Value in practice:** teachers get less suspicion and more guidance; students can use AI openly and build critical engagement instead of hiding it; institutions get a path toward evidence for AI policy rather than prohibition alone.
+
+## Next on the roadmap
+
+- Compute Domain Knowledge and AI Usage scores from real attempts (LLM-graded rubric over saved chat + insertions) — how questions are formulated, answers refined, and whether students challenge or accept AI outputs.
+- Per-assessment AI settings (how much assistance is allowed).
+- Vision further out: cohort learning patterns, structured institutional pilots, and clearer alignment with responsible-AI frameworks (for example Australia’s) — labelled as direction, not shipped product.
 
 ## Live demo
 
@@ -26,7 +58,7 @@ Mock login — **any password** works. On the login screens, pick a demo user (o
 - **Teacher controls** — Course roster and assessments; open/close status with audit history; due dates and auto-close; PDF brief upload (Vercel Blob); attempt review and marks (0–100)
 - **Admin dashboard** — Tenant user list, courses, and aggregate stats
 - **Cron auto-close** — Due assessments can be closed automatically (`/api/cron/auto-close-assessments`)
-- **Theme** — Day/night UI via app shell
+- **Theme** — Bookshelf (wood / parchment) UI with open-book assessment workspace
 
 ## Tech stack
 
@@ -62,7 +94,7 @@ flowchart LR
 | --- | --- |
 | Public | `/`, `/login/:role` |
 | Student | `/student/home`, `/student/courses/:courseId`, `.../assessments/:assessmentId` |
-| Teacher | `/teacher/home`, `/teacher/courses/:courseId`, student + attempt mark views |
+| Teacher | `/teacher/home`, `/teacher/courses/:courseId`, student + attempt mark views, attempt analytics (sample preview) |
 | Admin | `/admin` |
 
 **API surface (high level)** — `/api/auth/mock-login`, `/api/chat`, `/api/health` (DB ping / keep-warm), `/api/student/*`, `/api/teacher/*` (+ `pdf-upload`), `/api/admin/*`, `/api/cron/auto-close-assessments`.
@@ -149,7 +181,7 @@ vercel.json
 
 ## Screenshots
 
-> Note: these were captured while production CSS was broken; re-shoot after the Tailwind fix is deployed.
+Local captures against the Bookshelf theme (1440×900, route-mocked API).
 
 | View | Screenshot |
 | --- | --- |
@@ -157,6 +189,11 @@ vercel.json
 | Student home | ![Student home](docs/screenshots/student-home.png) |
 | Course with assessments | ![Course with assessments](docs/screenshots/course-assessments.png) |
 | Assessment editor with AI panel | ![Assessment editor with AI panel](docs/screenshots/assessment-ai-panel.png) |
+| Teacher attempt analytics (sample preview) | ![Teacher attempt analytics](docs/screenshots/teacher-analytics.png) |
+
+## Team
+
+Built by Daniel Leal Villaseca. Thanks to Cristóbal Olave Tessada, who co-founded WildMind AI Education with Daniel and contributed on the business side, including the early pitch and go-to-market thinking.
 
 ## License
 
