@@ -56,10 +56,14 @@ export function ChatPane({ messages, onNewMessage, onInsertText, readOnly = fals
       onNewMessage(aiMessage);
     } catch (error) {
       console.error('AI error:', error);
+      const friendly =
+        error instanceof Error && error.message
+          ? error.message
+          : 'Sorry, the AI assistant is temporarily unavailable. Please try again.';
       const errorMessage: ChatMessage = {
         id: `msg_${Date.now()}_${Math.random()}`,
         role: 'ai',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: friendly,
         createdAt: Date.now(),
       };
       onNewMessage(errorMessage);

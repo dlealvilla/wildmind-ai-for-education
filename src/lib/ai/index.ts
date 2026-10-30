@@ -1,43 +1,33 @@
-import { MockAIProvider } from './mock';
 import type { AIProvider } from './types';
 
 class APIAIProvider implements AIProvider {
   async generateResponse(prompt: string, chatHistory: Array<{ role: string; content: string }>): Promise<string> {
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt,
-          chatHistory,
-        }),
-      });
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt,
+        chatHistory,
+      }),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
-        console.error('API error response:', errorData);
-        console.error('Response status:', response.status);
-        
-        // If there's a mockResponse, use it (this helps with debugging)
-        if (errorData.mockResponse) {
-          console.warn('Using mock/fallback response');
-          return errorData.mockResponse;
-        }
-        
-        // Throw error with more details
-        const errorMessage = errorData.message || errorData.error || `HTTP ${response.status}: Failed to generate response`;
-        throw new Error(errorMessage);
-      }
+    const data = await response.json().catch(() => ({}));
 
-      const data = await response.json();
-      return data.response;
-    } catch (error) {
-      console.error('API error:', error);
-      const mockProvider = new MockAIProvider();
-      return mockProvider.generateResponse(prompt, chatHistory);
+    if (!response.ok) {
+      const message =
+        (typeof data?.error === 'string' && data.error) ||
+        (typeof data?.message === 'string' && data.message) ||
+        'The AI assistant is temporarily unavailable. Please try again in a moment.';
+      throw new Error(message);
     }
+
+    if (typeof data?.response !== 'string' || !data.response.trim()) {
+      throw new Error('The AI assistant returned an empty response. Please try again.');
+    }
+
+    return data.response;
   }
 }
 
@@ -50,9 +40,3 @@ export function getAIProvider(): AIProvider {
   providerInstance = new APIAIProvider();
   return providerInstance;
 }
-
-export function isMockMode(): boolean {
-  const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
-  return !apiKey || (typeof apiKey === 'string' && apiKey.trim() === '');
-}
-
