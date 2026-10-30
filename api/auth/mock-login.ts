@@ -2,6 +2,28 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { prisma, withDbRetry } from '../lib/db.js';
 import { createMockToken } from '../lib/auth.js';
 
+const ROLE_ENUM = ['STUDENT', 'TEACHER', 'ADMIN', 'SUPER_ADMIN'] as const;
+type RoleEnum = (typeof ROLE_ENUM)[number];
+
+/**
+ * Map any client-provided role string to the Prisma Role enum.
+ * Production bug: demo clients sometimes send "teacher"/"student"/"admin"
+ * (lowercase) which Prisma rejects with "Invalid value for argument role".
+ */
+function normalizeRole(raw: unknown): RoleEnum | null {
+  if (typeof raw !== 'string' || !raw.trim()) return null;
+  const upper = raw.trim().toUpperCase().replace(/[\s-]+/g, '_');
+  // Accept common aliases
+  const aliases: Record<string, RoleEnum> = {
+    STUDENT: 'STUDENT',
+    TEACHER: 'TEACHER',
+    ADMIN: 'ADMIN',
+    SUPER_ADMIN: 'SUPER_ADMIN',
+    SUPERADMIN: 'SUPER_ADMIN',
+  };
+  return aliases[upper] ?? null;
+}
+
 export default async function handler(
   request: VercelRequest,
   response: VercelResponse
@@ -11,10 +33,18 @@ export default async function handler(
   }
 
   try {
-    const { email, role, tenantSlug } = request.body;
+    const { email, role: rawRole, tenantSlug } = request.body;
 
-    if (!email || !role) {
+    if (!email || rawRole == null || rawRole === '') {
       return response.status(400).json({ error: 'Email and role are required' });
+    }
+
+    const role = normalizeRole(rawRole);
+    if (!role) {
+      return response.status(400).json({
+        error: 'Invalid role',
+        message: `Role must be one of: ${ROLE_ENUM.join(', ')} (case-insensitive)`,
+      });
     }
 
     // Find tenant (retry: Neon free tier can be cold on first request)
@@ -83,7 +113,7 @@ export default async function handler(
     const token = createMockToken({
       userId: user.id,
       tenantId: tenant.id,
-      role: user.role as 'STUDENT' | 'TEACHER' | 'ADMIN' | 'SUPER_ADMIN',
+      role: user.role as RoleEnum,
       email: user.email,
       name: user.name,
     });
@@ -111,4 +141,3 @@ export default async function handler(
     });
   }
 }
-
