@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/brand/banner.png" alt="WildMind AI Education" width="100%"></p>
+<p align="center"><img src="docs/brand/banner.png" alt="WildMind AI for Education" width="100%"></p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-C4A35A?style=flat-square&labelColor=1A0E08)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white&labelColor=1A0E08)](https://www.typescriptlang.org/)
@@ -7,7 +7,7 @@
 [![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white&labelColor=1A0E08)](https://ai.google.dev/)
 [![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white&labelColor=1A0E08)](https://vercel.com/)
 
-# WildMind AI Education
+# WildMind AI for Education
 
 **Assignments. AI. Critical Thinking. Measured.**
 
@@ -202,7 +202,7 @@ Local captures against the Bookshelf theme (1440×900, route-mocked API).
 
 ## Team
 
-Built by Daniel Leal Villaseca. Thanks to Cristóbal Olave Tessada, who co-founded WildMind AI Education with Daniel and contributed on the business side, including the early pitch and go-to-market thinking.
+Built by Daniel Leal Villaseca. Thanks to Cristóbal Olave Tessada, who co-founded WildMind AI for Education with Daniel and contributed on the business side, including the early pitch and go-to-market thinking.
 
 ## License
 
