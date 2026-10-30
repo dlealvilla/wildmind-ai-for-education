@@ -152,8 +152,9 @@
 /* TipTap AI-inserted mark — parchment highlight */
 .ai-inserted-text {
   background-color: #F5EBD0;
-  border-left: 3px solid #8B6914;
+  border-left: 3px solid #C4A35A;
   padding: 2px 6px;
+  border-radius: 2px;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }

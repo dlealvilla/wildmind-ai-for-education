@@ -7,6 +7,8 @@ import type { AssessmentSession } from '../../types/assessment';
 interface AssessmentDetails {
   id: string;
   title: string;
+  courseCode?: string;
+  courseId?: string;
   effectiveClosed: boolean;
   pdfBlobUrl: string | null;
   pdfFileName: string | null;
@@ -116,6 +118,7 @@ export function StudentAssessment() {
     <AssessmentWorkspace
       assessmentId={assessmentId!}
       assessmentTitle={assessment.title}
+      courseCode={assessment.courseCode}
       studentName={user?.name}
       mode="student"
       readOnly={assessment.effectiveClosed}
