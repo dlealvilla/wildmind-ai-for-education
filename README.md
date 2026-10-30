@@ -1,3 +1,12 @@
+<p align="center"><img src="docs/brand/banner.png" alt="WildMind AI Education" width="100%"></p>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-C4A35A?style=flat-square&labelColor=1A0E08)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white&labelColor=1A0E08)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=0F172A&labelColor=1A0E08)](https://react.dev/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white&labelColor=1A0E08)](https://www.prisma.io/)
+[![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white&labelColor=1A0E08)](https://ai.google.dev/)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white&labelColor=1A0E08)](https://vercel.com/)
+
 # LMS Writing Prototype (v0)
 
 A browser-based Learning Management System prototype where students write assessments in a rich text editor with an integrated AI chat assistant. The system tracks all AI interactions and text insertions for assessment integrity.
