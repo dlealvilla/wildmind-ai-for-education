@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { AuthLayout } from '../../components/Layout/AuthLayout';
+import { LibraryShell, CourseShelf, type ShelfCourse } from '@/components/bookshelf';
 import { getAuthHeaders } from '../../lib/auth/AuthContext';
 
 interface Course {
@@ -41,98 +40,50 @@ export function TeacherHome() {
     }
   };
 
-  const currentCourses = courses.filter(c => c.status === 'CURRENT');
-  const pastCourses = courses.filter(c => c.status === 'PAST');
+  const currentCourses = courses.filter((c) => c.status === 'CURRENT') as ShelfCourse[];
+  const pastCourses = courses.filter((c) => c.status === 'PAST') as ShelfCourse[];
+
+  const totalStudents = currentCourses.reduce((n, c) => n + (c.studentCount || 0), 0);
+  const totalAssessments = currentCourses.reduce((n, c) => n + (c.assessmentCount || 0), 0);
+  const footerStats =
+    currentCourses.length > 0
+      ? `${totalStudents} students · ${totalAssessments} assessments across open courses`
+      : undefined;
 
   if (isLoading) {
     return (
-      <AuthLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading courses...</div>
+      <LibraryShell>
+        <div className="flex items-center justify-center h-64 text-foreground-muted">
+          Loading courses...
         </div>
-      </AuthLayout>
+      </LibraryShell>
     );
   }
 
   if (error) {
     return (
-      <AuthLayout>
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg">
+      <LibraryShell>
+        <div className="bg-error/10 text-error border border-error/30 p-4 rounded-[2px]">
           {error}
         </div>
-      </AuthLayout>
+      </LibraryShell>
     );
   }
 
   return (
-    <AuthLayout>
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">My Courses</h1>
-          <p className="text-gray-600">Manage your courses, assessments, and student progress</p>
-        </div>
-
-        {/* Current Courses */}
-        <section>
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Current Courses</h2>
-          {currentCourses.length === 0 ? (
-            <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">
-              No current courses assigned
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {currentCourses.map((course) => (
-                <Link
-                  key={course.id}
-                  to={`/teacher/courses/${course.id}`}
-                  className="bg-white rounded-lg border border-gray-200 p-6 hover:border-purple-300 hover:shadow-md transition-all"
-                >
-                  <div className="text-sm text-purple-600 font-medium mb-1">
-                    {course.code}
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {course.title}
-                  </h3>
-                  <div className="text-sm text-gray-500 mb-3">
-                    {course.term}
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span>{course.studentCount} students</span>
-                    <span>{course.assessmentCount} assessments</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Past Courses */}
-        {pastCourses.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Past Courses</h2>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {pastCourses.map((course) => (
-                <Link
-                  key={course.id}
-                  to={`/teacher/courses/${course.id}`}
-                  className="bg-gray-50 rounded-lg border border-gray-200 p-6 hover:border-gray-300 transition-all opacity-75"
-                >
-                  <div className="text-sm text-gray-500 font-medium mb-1">
-                    {course.code}
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                    {course.title}
-                  </h3>
-                  <div className="text-sm text-gray-400">
-                    {course.term}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+    <LibraryShell contentClassName="pb-6">
+      <div className="mb-8">
+        <h1 className="font-serif text-3xl font-bold text-parchment mb-2">My Courses</h1>
+        <p className="text-sm text-[#A89070]">Pull a volume from the shelf to open a course</p>
       </div>
-    </AuthLayout>
+
+      <CourseShelf
+        current={currentCourses}
+        past={pastCourses}
+        basePath="/teacher/courses"
+        showNewSlot
+        footerStats={footerStats}
+      />
+    </LibraryShell>
   );
 }
-
