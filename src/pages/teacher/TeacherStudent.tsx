@@ -119,7 +119,7 @@ export function TeacherStudent() {
     return (
       <AuthLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading student details...</div>
+          <div className="text-foreground-muted">Loading student details...</div>
         </div>
       </AuthLayout>
     );
@@ -128,7 +128,7 @@ export function TeacherStudent() {
   if (error || !student || !course) {
     return (
       <AuthLayout>
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg">
+        <div className="bg-error/10 text-error border border-error/30 p-4 rounded-[2px]">
           {error || 'Student not found'}
         </div>
       </AuthLayout>
@@ -139,57 +139,57 @@ export function TeacherStudent() {
     <AuthLayout>
       <div className="space-y-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Link to="/teacher/home" className="hover:text-gray-700">Home</Link>
+        <div className="flex items-center gap-2 text-sm text-foreground-muted">
+          <Link to="/teacher/home" className="hover:text-parchment">Home</Link>
           <span>/</span>
-          <Link to={`/teacher/courses/${courseId}`} className="hover:text-gray-700">
+          <Link to={`/teacher/courses/${courseId}`} className="hover:text-parchment">
             {course.code}
           </Link>
           <span>/</span>
-          <span className="text-gray-900">{student.name}</span>
+          <span className="text-ink">{student.name}</span>
         </div>
 
         {/* Student header */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">{student.name}</h1>
-          <div className="text-gray-500">{student.email}</div>
+        <div className="bg-page rounded-[2px] border border-[#E0D4C0] p-6">
+          <h1 className="text-2xl font-bold text-ink mb-2">{student.name}</h1>
+          <div className="text-foreground-muted">{student.email}</div>
         </div>
 
         {/* Assessments list */}
         <section>
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Assessments</h2>
+          <h2 className="text-lg font-semibold text-parchment mb-4">Assessments</h2>
           
           {student.attempts.length === 0 ? (
-            <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">
+            <div className="bg-page-muted rounded-[2px] p-8 text-center text-foreground-muted">
               No assessments for this course
             </div>
           ) : (
-            <div className="bg-white rounded-lg border border-gray-200 divide-y">
+            <div className="bg-page rounded-[2px] border border-[#E0D4C0] divide-y">
               {student.attempts.map((attempt) => (
                 <div key={attempt.assessmentId} className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-ink">
                           {attempt.assessmentTitle}
                         </h3>
                         <span
                           className={`px-2 py-0.5 rounded text-xs font-medium ${
                             attempt.effectiveClosed
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-green-100 text-green-700'
+                              ? 'bg-error/10 text-error border border-error/30'
+                              : 'bg-success/10 text-success border border-success/30'
                           }`}
                         >
                           {attempt.effectiveClosed ? 'Closed' : 'Open'}
                         </span>
                         {!attempt.hasAttempt && (
-                          <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">
+                          <span className="px-2 py-0.5 rounded text-xs bg-page-muted text-foreground-muted">
                             Not started
                           </span>
                         )}
                       </div>
                       
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-foreground-muted">
                         Last saved: {formatDate(attempt.lastSavedAt)}
                       </div>
                     </div>
@@ -223,7 +223,7 @@ export function TeacherStudent() {
                       {attempt.hasAttempt && (
                         <Link
                           to={`/teacher/courses/${courseId}/students/${studentId}/assessments/${attempt.assessmentId}`}
-                          className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+                          className="text-secondary hover:text-secondary text-sm font-medium"
                         >
                           View →
                         </Link>

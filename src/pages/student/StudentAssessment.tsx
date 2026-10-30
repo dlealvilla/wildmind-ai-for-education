@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AssessmentWorkspace } from '../../components/AssessmentWorkspace/AssessmentWorkspace';
-import { getAuthHeaders } from '../../lib/auth/AuthContext';
+import { getAuthHeaders, useAuth } from '../../lib/auth/AuthContext';
 import type { AssessmentSession } from '../../types/assessment';
 
 interface AssessmentDetails {
@@ -22,6 +22,7 @@ interface AttemptData {
 export function StudentAssessment() {
   const { courseId, assessmentId } = useParams<{ courseId: string; assessmentId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const [assessment, setAssessment] = useState<AssessmentDetails | null>(null);
   const [attempt, setAttempt] = useState<AttemptData | null>(null);
@@ -87,16 +88,16 @@ export function StudentAssessment() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-gray-500">Loading assessment...</div>
+      <div className="min-h-screen flex items-center justify-center bg-wood">
+        <div className="text-foreground-muted">Loading assessment...</div>
       </div>
     );
   }
 
   if (error || !assessment) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg">
+      <div className="min-h-screen flex items-center justify-center bg-wood">
+        <div className="bg-error/10 text-error border border-error/30 p-4 rounded-[2px]">
           {error || 'Assessment not found'}
         </div>
       </div>
@@ -115,6 +116,7 @@ export function StudentAssessment() {
     <AssessmentWorkspace
       assessmentId={assessmentId!}
       assessmentTitle={assessment.title}
+      studentName={user?.name}
       mode="student"
       readOnly={assessment.effectiveClosed}
       effectiveClosed={assessment.effectiveClosed}

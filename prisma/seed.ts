@@ -106,7 +106,20 @@ async function main() {
     },
   });
 
-  console.log('✓ Courses created:', course1.code, course2.code);
+  const course3 = await prisma.course.upsert({
+    where: { id: 'course-hist201-2025t2' },
+    update: {},
+    create: {
+      id: 'course-hist201-2025t2',
+      tenantId: tenant.id,
+      code: 'HIST201',
+      title: 'World History',
+      term: '2025 T2',
+      status: CourseStatus.PAST,
+    },
+  });
+
+  console.log('✓ Courses created:', course1.code, course2.code, course3.code);
 
   // Assign teacher to both courses
   await prisma.courseTeacher.upsert({
@@ -125,6 +138,17 @@ async function main() {
     create: {
       tenantId: tenant.id,
       courseId: course2.id,
+      teacherId: teacher.id,
+    },
+  });
+
+
+  await prisma.courseTeacher.upsert({
+    where: { courseId_teacherId: { courseId: course3.id, teacherId: teacher.id } },
+    update: {},
+    create: {
+      tenantId: tenant.id,
+      courseId: course3.id,
       teacherId: teacher.id,
     },
   });
@@ -150,6 +174,16 @@ async function main() {
       create: {
         tenantId: tenant.id,
         courseId: course2.id,
+        studentId: student.id,
+      },
+    });
+
+    await prisma.enrollment.upsert({
+      where: { courseId_studentId: { courseId: course3.id, studentId: student.id } },
+      update: {},
+      create: {
+        tenantId: tenant.id,
+        courseId: course3.id,
         studentId: student.id,
       },
     });
