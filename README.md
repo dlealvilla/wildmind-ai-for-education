@@ -1,159 +1,163 @@
-# LMS Writing Prototype (v0)
+# Wildmind Education — AI LMS
 
-A browser-based Learning Management System prototype where students write assessments in a rich text editor with an integrated AI chat assistant. The system tracks all AI interactions and text insertions for assessment integrity.
+Multi-tenant learning management system for written assessments with an integrated AI writing assistant. Students draft in a TipTap rich-text editor beside a Gemini-powered chat panel; teachers open or close assessments, attach brief PDFs, review attempts (including AI chat and insertions), and mark out of 100; admins see tenant users, courses, and stats. Built as a Vite + React SPA with Vercel serverless APIs and PostgreSQL via Prisma.
 
-## Features
 
-- **Rich Text Editor**: Word/Google-Docs-like editor powered by TipTap
-  - Bold, italic, underline formatting
-  - Headings (H1/H2)
-  - Bullet and numbered lists
-  - Undo/redo functionality
-  - **Paste blocking**: All paste operations are disabled to prevent copying content
+## Live demo
 
-- **AI Chat Assistant**: Right-side panel for AI-powered assistance
-  - Chat with AI assistant
-  - Insert AI responses directly into the document
-  - AI-inserted text is visually marked and tracked
+**https://wildmind-education.vercel.app** (Vercel project `wildmind-education`, production branch `main`)
 
-- **Session Persistence**: Automatic saving to localStorage (debounced)
+Mock login — **any password** works. On the login screens, pick a demo user (or use the emails below):
 
-- **Submission System**: 
-  - Submit assessment (freezes editor and chat)
-  - Download submission JSON containing:
-    - Full document content
-    - Complete chat history
-    - All insertion events mapping AI messages to inserted text
+| Role | Demo control | Email |
+| --- | --- | --- |
+| Teacher | **Dr. Smith** | `teacher@wildmind.edu` |
+| Student | **Alice** | `alice@wildmind.edu` |
+| Student | **Bob** | `bob@wildmind.edu` |
+| Student | **Charlie** | `charlie@wildmind.edu` |
 
-## Installation & Setup
+> A second Vercel project (`lms-ai` / lms-ai-sand.vercel.app) also builds from this repo and is being retired — prefer **wildmind-education**.
+
+## Key features
+
+- **Role-based portals** — Student, teacher, and admin experiences with route guards and mock login for demos
+- **Multi-tenant data model** — Tenants, users, courses, enrollments, teachers, assessments, and attempts (Prisma / PostgreSQL)
+- **Assessment workspace** — TipTap editor + AI chat; paste/drop blocked for integrity; AI-inserted text tracked; autosave of document, chat, and insertions
+- **Teacher controls** — Course roster and assessments; open/close status with audit history; due dates and auto-close; PDF brief upload (Vercel Blob); attempt review and marks (0–100)
+- **Admin dashboard** — Tenant user list, courses, and aggregate stats
+- **Cron auto-close** — Due assessments can be closed automatically (`/api/cron/auto-close-assessments`)
+- **Theme** — Day/night UI via app shell
+
+## Tech stack
+
+| Layer | Choices |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite 7, React Router 7, Tailwind CSS 4, shadcn/ui (Radix), Lucide |
+| Editor / AI | TipTap, Google Generative AI (Gemini 2.5 Flash via `/api/chat`) |
+| Backend | Vercel serverless functions (`api/`), mock Bearer tokens |
+| Data | PostgreSQL, Prisma 6 |
+| Storage | Vercel Blob (assessment PDFs) |
+| Deploy | Vercel (`vercel.json` SPA + API rewrites) |
+
+## Architecture
+
+```mermaid
+flowchart LR
+  Browser["React SPA\n(Vite)"]
+  API["Vercel serverless\n/api/*"]
+  DB[(PostgreSQL\nPrisma)]
+  Blob[(Vercel Blob)]
+  Gemini["Gemini API"]
+
+  Browser -->|"Bearer mock token"| API
+  API --> DB
+  API --> Blob
+  Browser -->|"POST /api/chat"| API
+  API --> Gemini
+```
+
+**Roles & main routes**
+
+| Role | Routes |
+| --- | --- |
+| Public | `/`, `/login/:role` |
+| Student | `/student/home`, `/student/courses/:courseId`, `.../assessments/:assessmentId` |
+| Teacher | `/teacher/home`, `/teacher/courses/:courseId`, student + attempt mark views |
+| Admin | `/admin` |
+
+**API surface (high level)** — `/api/auth/mock-login`, `/api/chat`, `/api/health` (DB ping / keep-warm), `/api/student/*`, `/api/teacher/*` (+ `pdf-upload`), `/api/admin/*`, `/api/cron/auto-close-assessments`.
+
+## Getting started
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 20+ (recommended)
+- A PostgreSQL database (local, Neon, or Vercel Postgres)
+- Optional: Google AI (Gemini) API key; optional Vercel Blob token for PDF uploads
 
-### Install Dependencies
+### Install
 
 ```bash
+git clone https://github.com/dlealvilla/lms_ai.git
+cd lms_ai
 npm install
+cp .env.example .env
+# edit .env — at minimum set DATABASE_URL
 ```
 
-### TailwindCSS Setup
+### Database
 
-TailwindCSS is already configured. The configuration files are:
-- `tailwind.config.js` - Tailwind configuration
-- `postcss.config.js` - PostCSS configuration
-- `src/index.css` - Contains Tailwind directives
+```bash
+npm run db:generate   # prisma generate
+npm run db:push       # push schema (or use db:migrate)
+npm run db:seed       # demo tenant "wildmind-academy" + sample users/courses
+```
 
-### Running the Application
+Seed demo emails (password ignored by mock login): `alice@wildmind.edu` / `bob@wildmind.edu` / `charlie@wildmind.edu` (students), `teacher@wildmind.edu`, `admin@wildmind.edu`.
+
+### Run locally
 
 ```bash
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173` (or the port Vite assigns).
+Open the Vite URL (typically `http://localhost:5173` or the port Vite prints). For full API behaviour matching production, deploy to Vercel or run the serverless handlers with the Vercel CLI (`vercel dev`) so `/api/*` is available.
 
-## Gemini API Key Configuration
+### Useful scripts
 
-The application supports two modes:
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Vite frontend |
+| `npm run build` | Typecheck + production build |
+| `npm run db:studio` | Prisma Studio |
+| `npm run lint` | ESLint |
 
-1. **Gemini AI Mode** (with API key)
-2. **Mock AI Mode** (fallback, no API key required)
+## Environment variables
 
-### Setting Up Gemini API Key
+Names and purpose only — never commit real values. See `.env.example`.
 
-1. Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a `.env` file in the project root:
-   ```env
-   VITE_GEMINI_API_KEY=your_api_key_here
-   ```
-3. Restart the dev server
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL connection string for Prisma (prefer Neon **pooled** URL; `connect_timeout` is added automatically if missing) |
+| `GEMINI_API_KEY` | **Server-only** Gemini key for `/api/chat`. Never use a `VITE_` prefix — that would embed the key in the browser bundle |
+| `TOKEN_SECRET` | Required in production (app refuses a weak default). Mock auth tokens are still unsigned base64 today |
+| `CRON_SECRET` | Shared secret for `x-cron-secret` on the auto-close cron route |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob read/write token for assessment PDF upload |
+| `NODE_ENV` | Runtime mode (`development` / `production`) |
 
-**Note**: If no API key is provided, the app automatically uses mock AI responses and displays a banner indicating "Mock AI mode (no API key configured)."
-
-**Important**: Never commit your `.env` file. The `.env.example` file shows the required format.
-
-## Paste Blocking Design
-
-Paste functionality is completely blocked through multiple mechanisms:
-
-1. **Paste Event**: `paste` event listener prevents default behavior
-2. **BeforeInput Event**: Blocks `insertFromPaste` and `insertFromDrop` input types
-3. **Keyboard Shortcuts**: Intercepts Cmd/Ctrl+V key combinations
-4. **Drag & Drop**: Blocks `drop` events to prevent text dragging
-
-When a paste attempt is detected, a toast notification appears: "Paste is disabled for this assessment."
-
-Copy functionality remains enabled for students to copy their own work.
-
-## Project Structure
+## Project structure
 
 ```
+api/                     # Vercel serverless handlers
+  auth/mock-login.ts
+  chat.ts
+  health.ts              # DB ping / keep-warm
+  student|teacher|admin/ # role APIs (catch-all [[...path]])
+  teacher/pdf-upload.ts
+  cron/auto-close-assessments.ts
+  lib/auth.ts, lib/db.ts
+prisma/
+  schema.prisma          # tenants, users, courses, assessments, attempts, …
+  seed.ts
 src/
-├── components/
-│   ├── Editor/
-│   │   └── EditorPane.tsx       # Rich text editor with paste blocking
-│   ├── Chat/
-│   │   └── ChatPane.tsx         # AI chat interface
-│   └── SubmissionModal/
-│       └── SubmissionModal.tsx  # Submission review modal
-├── lib/
-│   ├── ai/
-│   │   ├── types.ts             # AI provider interface
-│   │   ├── gemini.ts            # Gemini AI provider
-│   │   ├── mock.ts              # Mock AI provider
-│   │   └── index.ts             # Provider factory
-│   └── storage/
-│       └── sessionStorage.ts    # localStorage persistence
-├── types/
-│   └── assessment.ts            # TypeScript type definitions
-├── App.tsx                      # Main application component
-└── main.tsx                     # Application entry point
+  pages/                 # Landing, Login, student|teacher|admin
+  components/            # AssessmentWorkspace, Editor, Chat, Layout, ui
+  lib/ai, lib/auth, lib/theme, lib/storage
+  types/assessment.ts
+vercel.json
 ```
 
-## Known Limitations
+## Screenshots
 
-1. **Context Menu Paste**: While paste events are blocked, right-click context menu paste may work in some browsers. The primary enforcement is through the paste event, which is the standard approach.
+> Note: these were captured while production CSS was broken; re-shoot after the Tailwind fix is deployed.
 
-2. **Browser Extensions**: Browser extensions that modify paste behavior may bypass restrictions. This is a limitation of client-side enforcement.
+| View | Screenshot |
+| --- | --- |
+| Teacher dashboard | ![Teacher dashboard](docs/screenshots/teacher-dashboard.png) |
+| Student home | ![Student home](docs/screenshots/student-home.png) |
+| Course with assessments | ![Course with assessments](docs/screenshots/course-assessments.png) |
+| Assessment editor with AI panel | ![Assessment editor with AI panel](docs/screenshots/assessment-ai-panel.png) |
 
-3. **No Authentication**: This is a prototype without user authentication. All data is stored locally in the browser.
+## License
 
-4. **Single Session**: The app manages one assessment session at a time, stored in localStorage.
-
-## Development
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-### Preview Production Build
-
-```bash
-npm run preview
-```
-
-### Reset Development Data
-
-In development mode, a "Reset" button is available in the header to clear the current session and start fresh.
-
-## Acceptance Criteria
-
-✅ `npm run dev` works  
-✅ Editor + chat panel render correctly  
-✅ Paste is blocked (Cmd/Ctrl+V, paste event, drop)  
-✅ AI responses can be inserted at cursor and are marked/persisted  
-✅ Submission JSON includes document + chat + insertions  
-✅ No authentication required  
-✅ Mock AI mode works without API key  
-✅ Session persists across page reloads  
-
-## Technologies Used
-
-- **React 19** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **TailwindCSS** - Styling
-- **TipTap** - Rich text editor
-- **Google Generative AI** - Gemini API integration
+TODO: choose a licence (none selected yet).
