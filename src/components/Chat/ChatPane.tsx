@@ -1,19 +1,29 @@
 import { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../../types/assessment';
 import { getAIProvider } from '../../lib/ai';
+import { Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ChatPaneProps {
   messages: ChatMessage[];
   onNewMessage: (message: ChatMessage) => void;
   onInsertText: (text: string, messageId: string) => void;
   readOnly?: boolean;
+  courseCode?: string;
+  variant?: 'default' | 'book';
 }
 
-export function ChatPane({ messages, onNewMessage, onInsertText, readOnly = false }: ChatPaneProps) {
+export function ChatPane({
+  messages,
+  onNewMessage,
+  onInsertText,
+  readOnly = false,
+  courseCode,
+  variant = 'default',
+}: ChatPaneProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -88,82 +98,102 @@ export function ChatPane({ messages, onNewMessage, onInsertText, readOnly = fals
     }
   };
 
+  const isBook = variant === 'book';
+
   return (
-    <div className="flex flex-col h-full bg-white border-l border-gray-300" style={{ width: '400px' }}>
-      <div className="border-b border-gray-300 p-4 bg-gray-50">
-        <h2 className="text-lg font-semibold">AI Assistant</h2>
+    <div
+      className={cn(
+        'flex flex-col h-full',
+        isBook ? 'bg-transparent' : 'bg-page text-ink border-l border-shelf',
+        !isBook && 'w-[400px]',
+      )}
+    >
+      <div className={cn('shrink-0', isBook ? 'px-7 pt-6 pb-3' : 'border-b border-shelf/40 p-4')}>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center">
+            <Sparkles className="h-3.5 w-3.5" />
+          </div>
+          <div>
+            <div className="font-bold text-[13px] text-ink">AI Tutor</div>
+            <div className="text-[11px] text-ink-subtle">
+              Notes on the facing page{courseCode ? ` · ${courseCode}` : ''}
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+
+      <div className={cn('flex-1 overflow-y-auto space-y-3.5', isBook ? 'px-7 pb-2' : 'p-4')}>
         {messages.length === 0 && (
-          <div className="text-gray-500 text-center py-8">
-            Start a conversation with the AI assistant to get help with your assessment.
+          <div className="text-ink-subtle text-center py-8 text-sm">
+            Ask the tutor for help with your assessment. Notes appear here like sticky scraps on the facing page.
           </div>
         )}
-        
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.role === 'student' ? 'justify-end' : 'justify-start'}`}
-          >
+
+        {messages.map((message) => {
+          const isStudent = message.role === 'student';
+          return (
             <div
-              className={`max-w-[80%] rounded-lg p-3 ${
-                message.role === 'student'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-900'
-              }`}
+              key={message.id}
+              className={cn(
+                'rounded-[2px] p-2.5 text-[13px] leading-relaxed text-ink',
+                isStudent
+                  ? 'bg-[#F0E8D8] border-l-[3px] border-secondary'
+                  : 'bg-[#FFFEF5] border border-[#E0D4C0]',
+              )}
             >
+              <div
+                className={cn(
+                  'text-[10px] font-bold tracking-wide mb-1',
+                  isStudent ? 'text-secondary' : 'text-[#8B6914]',
+                )}
+              >
+                {isStudent ? 'STUDENT' : 'TUTOR'}
+              </div>
               <div className="whitespace-pre-wrap break-words">{message.content}</div>
-              {message.role === 'ai' && !readOnly && (
+              {!isStudent && !readOnly && (
                 <button
                   onClick={() => handleInsert(message)}
-                  className="mt-2 text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                  className="mt-2 inline-flex text-[11px] font-semibold px-2.5 py-1 rounded-[2px] bg-gold text-primary-foreground border border-gold hover:brightness-105"
                 >
                   Insert into document
                 </button>
               )}
             </div>
-          </div>
-        ))}
-        
+          );
+        })}
+
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-lg p-3">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
+          <div className="bg-[#FFFEF5] border border-[#E0D4C0] rounded-[2px] p-3">
+            <div className="flex space-x-1">
+              <div className="w-2 h-2 bg-ink-subtle rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-2 h-2 bg-ink-subtle rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-2 h-2 bg-ink-subtle rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
           </div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 
       {!readOnly && (
-        <div className="border-t border-gray-300 p-4 bg-gray-50">
-          <div className="flex gap-2">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask the AI assistant..."
-              className="flex-1 border border-gray-300 rounded px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows={3}
-              disabled={isLoading}
-            />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || isLoading}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Send
-            </button>
-          </div>
+        <div className={cn('shrink-0 flex gap-2', isBook ? 'px-7 pb-6 pt-2' : 'border-t border-shelf/40 p-4')}>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder="Ask the tutor…"
+            className="flex-1 px-2.5 py-2 border border-[#D4C4A8] rounded-[2px] bg-[#FFFEF5] text-[13px] text-ink outline-none focus:border-gold"
+            disabled={isLoading}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading}
+            className="px-3.5 py-2 text-[13px] font-semibold rounded-[2px] bg-gold text-primary-foreground border border-gold hover:brightness-105 disabled:opacity-50"
+          >
+            Send
+          </button>
         </div>
       )}
     </div>
   );
 }
-

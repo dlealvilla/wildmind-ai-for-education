@@ -8,6 +8,8 @@ import type { JSONContent } from '@tiptap/core';
 export interface AssessmentWorkspaceProps {
   assessmentId: string;
   assessmentTitle?: string;
+  courseCode?: string;
+  studentName?: string;
   mode: 'student' | 'teacher';
   readOnly: boolean;
   effectiveClosed: boolean;
@@ -23,6 +25,8 @@ export interface AssessmentWorkspaceProps {
 export function AssessmentWorkspace({
   assessmentId,
   assessmentTitle,
+  courseCode,
+  studentName,
   mode,
   readOnly,
   effectiveClosed,
@@ -41,17 +45,14 @@ export function AssessmentWorkspace({
   const [markInput, setMarkInput] = useState<string>(mark?.toString() ?? '');
   const [markError, setMarkError] = useState<string | null>(null);
 
-  // Sync initialSession when it changes
   useEffect(() => {
     setSession(initialSession);
   }, [initialSession]);
 
-  // Sync mark input when mark prop changes
   useEffect(() => {
     setMarkInput(mark?.toString() ?? '');
   }, [mark]);
 
-  // Autosave effect
   useEffect(() => {
     if (readOnly || !onAutosave) return;
 
@@ -140,13 +141,13 @@ export function AssessmentWorkspace({
 
   const handleMarkSubmit = async () => {
     if (!onSetMark) return;
-    
+
     const markValue = parseInt(markInput, 10);
     if (isNaN(markValue) || markValue < 0 || markValue > 100) {
       setMarkError('Mark must be an integer between 0 and 100');
       return;
     }
-    
+
     setMarkError(null);
     try {
       await onSetMark(markValue);
@@ -159,77 +160,79 @@ export function AssessmentWorkspace({
   const isStudentMode = mode === 'student';
   const isTeacherMode = mode === 'teacher';
 
+  const statusBadge = () => {
+    if (effectiveClosed) {
+      return (
+        <span className="badge inline-block px-2 py-0.5 text-[11px] font-bold tracking-wide border border-error text-error rounded-[2px]">
+          Closed
+        </span>
+      );
+    }
+    if (isSubmitted) {
+      return (
+        <span className="badge inline-block px-2 py-0.5 text-[11px] font-bold tracking-wide border border-success text-success rounded-[2px]">
+          Submitted
+        </span>
+      );
+    }
+    if (isTeacherMode) {
+      return (
+        <span className="badge inline-block px-2 py-0.5 text-[11px] font-bold tracking-wide border border-gold text-gold rounded-[2px]">
+          Teacher View
+        </span>
+      );
+    }
+    return (
+      <span className="badge inline-block px-2 py-0.5 text-[11px] font-bold tracking-wide border border-success text-success rounded-[2px]">
+        Open
+      </span>
+    );
+  };
+
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="h-screen flex flex-col bg-wood text-parchment">
       {/* Header */}
-      <header className="bg-white border-b border-gray-300 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <header className="px-4 sm:px-8 py-3 flex items-center justify-between gap-3 flex-wrap shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
           {onBack && (
             <button
               onClick={onBack}
-              className="text-gray-600 hover:text-gray-900 flex items-center gap-1"
+              className="px-2.5 py-1.5 text-xs font-semibold rounded-[2px] border border-[#8B6914] bg-[#3D2518] text-parchment hover:border-gold"
             >
               ← Back
             </button>
           )}
-          <h1 className="text-xl font-bold">
+          <h1 className="font-serif text-lg font-bold truncate">
             {assessmentTitle || 'Assessment'}
           </h1>
-          
-          {/* Status badges */}
-          {effectiveClosed && (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-              Closed
-            </span>
-          )}
-          {!effectiveClosed && !isSubmitted && isStudentMode && (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-              Draft
-            </span>
-          )}
-          {isSubmitted && (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-              Submitted
-            </span>
-          )}
-          {isTeacherMode && (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-              Teacher View
-            </span>
-          )}
+          {statusBadge()}
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Saving indicator */}
-          {isSaving && (
-            <span className="text-sm text-gray-500">Saving...</span>
-          )}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {isSaving && <span className="text-xs text-[#A89070]">Saving...</span>}
           {lastSaved && !isSaving && (
-            <span className="text-sm text-gray-500">
-              Last saved: {lastSaved.toLocaleTimeString()}
+            <span className="text-xs text-[#A89070]">
+              Last saved: {lastSaved.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
             </span>
           )}
 
-          {/* PDF Link */}
           {pdfUrl && (
             <a
               href={pdfUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 flex items-center gap-2"
+              className="px-3 py-1.5 text-xs font-semibold rounded-[2px] border border-[#8B6914] bg-[#3D2518] text-parchment hover:border-gold"
             >
-              📄 {pdfFileName || 'View PDF'}
+              {pdfFileName || 'View PDF'}
             </a>
           )}
 
-          {/* Mark display/input */}
           {mark !== undefined && mark !== null && isStudentMode && (
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+            <span className="badge inline-block px-2 py-0.5 text-[11px] font-bold tracking-wide border border-gold text-gold rounded-[2px]">
               Mark: {mark}/100
             </span>
           )}
 
-          {/* Teacher mark input */}
           {isTeacherMode && onSetMark && (
             <div className="flex items-center gap-2">
               <input
@@ -239,25 +242,22 @@ export function AssessmentWorkspace({
                 value={markInput}
                 onChange={(e) => setMarkInput(e.target.value)}
                 placeholder="0-100"
-                className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
+                className="w-16 px-2 py-1 border border-[#8B6914] rounded-[2px] text-center bg-[#3D2518] text-parchment text-sm"
               />
               <button
                 onClick={handleMarkSubmit}
-                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                className="px-3 py-1.5 text-xs font-semibold rounded-[2px] bg-gold text-primary-foreground border border-gold hover:brightness-105"
               >
                 Set Mark
               </button>
-              {markError && (
-                <span className="text-red-500 text-sm">{markError}</span>
-              )}
+              {markError && <span className="text-error text-xs">{markError}</span>}
             </div>
           )}
 
-          {/* Student actions */}
           {isStudentMode && !readOnly && !isSubmitted && (
             <button
               onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 text-[13px] font-semibold rounded-[2px] bg-gold text-primary-foreground border border-gold hover:brightness-105"
             >
               Submit Assessment
             </button>
@@ -266,7 +266,7 @@ export function AssessmentWorkspace({
           {isSubmitted && (
             <button
               onClick={handleDownloadJSON}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              className="px-4 py-2 text-[13px] font-semibold rounded-[2px] border border-[#8B6914] bg-[#3D2518] text-parchment hover:border-gold"
             >
               Download JSON
             </button>
@@ -274,32 +274,59 @@ export function AssessmentWorkspace({
         </div>
       </header>
 
-      {/* Closed banner */}
       {effectiveClosed && (
-        <div className="bg-red-50 border-b border-red-200 px-6 py-3 text-red-800">
-          ⚠️ This assessment is closed. {isStudentMode ? 'You can view your work but cannot make changes.' : 'The student can no longer make changes.'}
+        <div className="mx-4 sm:mx-8 mb-2 px-4 py-2 text-sm rounded-[2px] bg-error/10 border border-error/30 text-error">
+          This assessment is closed.{' '}
+          {isStudentMode
+            ? 'You can view your work but cannot make changes.'
+            : 'The student can no longer make changes.'}
         </div>
       )}
 
-      {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 overflow-hidden">
-          <EditorPane
-            content={session.documentContent}
-            onChange={handleDocumentChange}
+      {/* Open book spread */}
+      <div className="flex-1 flex min-h-0 px-3 sm:px-6 pb-4 gap-0">
+        {/* LEFT PAGE: essay */}
+        <div className="flex-1 min-w-0 bg-page text-ink rounded-l-[4px] shadow-[8px_0_24px_rgba(0,0,0,0.2)] relative overflow-hidden flex flex-col">
+          <div className="absolute right-0 top-0 bottom-0 w-3 bg-gradient-to-r from-transparent to-black/5 pointer-events-none" />
+          <div className="px-6 sm:px-10 pt-5 pb-2 flex justify-between items-center text-[11px] text-ink-subtle shrink-0">
+            <span>
+              {[studentName, courseCode].filter(Boolean).join(' · ') || 'Essay'}
+            </span>
+          </div>
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <EditorPane
+              content={session.documentContent}
+              onChange={handleDocumentChange}
+              onInsertText={handleInsertText}
+              readOnly={readOnly || effectiveClosed}
+              variant="book"
+            />
+          </div>
+        </div>
+
+        {/* Binding gutter */}
+        <div
+          className="w-5 sm:w-6 shrink-0 shadow-[inset_0_0_12px_rgba(0,0,0,0.15)]"
+          style={{
+            background: 'linear-gradient(90deg, #D4C4A8, #C4B090 40%, #D4C4A8)',
+          }}
+          aria-hidden
+        />
+
+        {/* RIGHT PAGE: AI tutor notes */}
+        <div className="flex-1 min-w-0 max-w-[520px] bg-page text-ink rounded-r-[4px] shadow-[-8px_0_24px_rgba(0,0,0,0.15)] relative overflow-hidden flex flex-col">
+          <div className="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-l from-transparent to-black/5 pointer-events-none" />
+          <ChatPane
+            messages={session.chatHistory}
+            onNewMessage={handleNewMessage}
             onInsertText={handleInsertText}
             readOnly={readOnly || effectiveClosed}
+            courseCode={courseCode}
+            variant="book"
           />
         </div>
-        <ChatPane
-          messages={session.chatHistory}
-          onNewMessage={handleNewMessage}
-          onInsertText={handleInsertText}
-          readOnly={readOnly || effectiveClosed}
-        />
       </div>
 
-      {/* Submission modal */}
       {showSubmissionModal && session.submission && (
         <SubmissionModal
           submission={session.submission}
@@ -310,4 +337,3 @@ export function AssessmentWorkspace({
     </div>
   );
 }
-

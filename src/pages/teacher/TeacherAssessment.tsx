@@ -101,16 +101,16 @@ export function TeacherAssessment() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-gray-500">Loading student attempt...</div>
+      <div className="min-h-screen flex items-center justify-center bg-wood">
+        <div className="text-foreground-muted">Loading student attempt...</div>
       </div>
     );
   }
 
   if (error || !assessment || !student) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg">
+      <div className="min-h-screen flex items-center justify-center bg-wood">
+        <div className="bg-error/10 text-error border border-error/30 p-4 rounded-[2px]">
           {error || 'Attempt not found'}
         </div>
       </div>
@@ -128,7 +128,8 @@ export function TeacherAssessment() {
   return (
     <AssessmentWorkspace
       assessmentId={assessmentId!}
-      assessmentTitle={`${assessment.title} — ${student.name}`}
+      assessmentTitle={assessment.title}
+      studentName={student.name}
       mode="teacher"
       readOnly={true}
       effectiveClosed={assessment.effectiveClosed}

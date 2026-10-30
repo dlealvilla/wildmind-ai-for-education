@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { AuthenticatedLayout } from '@/components/Layout/AuthenticatedLayout';
+import { LibraryShell, CourseShelf, type ShelfCourse } from '@/components/bookshelf';
 import { getAuthHeaders } from '@/lib/auth/AuthContext';
-import { Card, CardContent } from '@/components/ui/card';
-import { BookOpen } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface Course {
   id: string;
@@ -42,125 +38,47 @@ export function StudentHome() {
     }
   };
 
-  const currentCourses = courses.filter(c => c.status === 'CURRENT');
-  const pastCourses = courses.filter(c => c.status === 'PAST');
+  const currentCourses = courses.filter((c) => c.status === 'CURRENT') as ShelfCourse[];
+  const pastCourses = courses.filter((c) => c.status === 'PAST') as ShelfCourse[];
 
   if (isLoading) {
     return (
-      <AuthenticatedLayout title="My Courses">
-        <div className="space-y-8">
-          <div className="space-y-2">
-            <div className="h-8 w-48 bg-background-elevated rounded animate-pulse" />
-            <div className="h-5 w-96 bg-background-elevated rounded animate-pulse" />
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <Card key={i}>
-                <CardContent className="pt-6">
-                  <div className="h-4 w-20 bg-background-elevated rounded animate-pulse mb-2" />
-                  <div className="h-6 w-full bg-background-elevated rounded animate-pulse mb-2" />
-                  <div className="h-4 w-32 bg-background-elevated rounded animate-pulse" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+      <LibraryShell>
+        <div className="flex items-center justify-center h-64 text-foreground-muted">
+          Loading courses...
         </div>
-      </AuthenticatedLayout>
+      </LibraryShell>
     );
   }
 
   if (error) {
     return (
-      <AuthenticatedLayout title="My Courses">
-        <Card className="border-error/20 bg-error/5">
-          <CardContent className="pt-6">
-            <div className="text-error">{error}</div>
-          </CardContent>
-        </Card>
-      </AuthenticatedLayout>
+      <LibraryShell>
+        <div className="bg-error/10 text-error border border-error/30 p-4 rounded-[2px]">
+          {error}
+        </div>
+      </LibraryShell>
     );
   }
 
   return (
-    <AuthenticatedLayout title="My Courses">
-      <div className="space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">My Courses</h1>
-          <p className="text-foreground-muted">View your enrolled courses and assessments</p>
-        </div>
-
-        {/* Current Courses */}
-        <section>
-          <h2 className="text-lg font-semibold text-foreground mb-4">Current Courses</h2>
-          {currentCourses.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-12">
-                  <BookOpen className="h-12 w-12 text-foreground-muted mx-auto mb-4" />
-                  <p className="text-foreground-muted">No current courses</p>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {currentCourses.map((course) => (
-                <Link
-                  key={course.id}
-                  to={`/student/courses/${course.id}`}
-                  className="block"
-                >
-                  <Card className="hover:border-primary transition-all hover:shadow-md">
-                    <CardContent className="pt-6">
-                      <div className="text-sm text-primary font-medium mb-1">
-                        {course.code}
-                      </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">
-                        {course.title}
-                      </h3>
-                      <div className="text-sm text-foreground-muted">
-                        {course.term}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Past Courses */}
-        {pastCourses.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold text-foreground mb-4">Past Courses</h2>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {pastCourses.map((course) => (
-                <Link
-                  key={course.id}
-                  to={`/student/courses/${course.id}`}
-                  className="block"
-                >
-                  <Card className={cn(
-                    "opacity-75 hover:opacity-100 transition-all",
-                    "hover:border-border-strong"
-                  )}>
-                    <CardContent className="pt-6">
-                      <div className="text-sm text-foreground-muted font-medium mb-1">
-                        {course.code}
-                      </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">
-                        {course.title}
-                      </h3>
-                      <div className="text-sm text-foreground-subtle">
-                        {course.term}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+    <LibraryShell contentClassName="pb-6">
+      <div className="mb-8">
+        <h1 className="font-serif text-3xl font-bold text-parchment mb-2">My Courses</h1>
+        <p className="text-sm text-[#A89070]">Pull a volume from the shelf to open a course</p>
       </div>
-    </AuthenticatedLayout>
+
+      {currentCourses.length === 0 && pastCourses.length === 0 ? (
+        <div className="bg-page/5 border border-dashed border-shelf rounded-[2px] p-12 text-center text-foreground-muted">
+          No courses on your shelf yet
+        </div>
+      ) : (
+        <CourseShelf
+          current={currentCourses}
+          past={pastCourses}
+          basePath="/student/courses"
+        />
+      )}
+    </LibraryShell>
   );
 }

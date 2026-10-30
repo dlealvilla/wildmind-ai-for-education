@@ -102,7 +102,7 @@ export function TeacherCourse() {
     return (
       <AuthLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading course...</div>
+          <div className="text-foreground-muted">Loading course...</div>
         </div>
       </AuthLayout>
     );
@@ -111,7 +111,7 @@ export function TeacherCourse() {
   if (error || !course) {
     return (
       <AuthLayout>
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg">
+        <div className="bg-error/10 text-error border border-error/30 p-4 rounded-[2px]">
           {error || 'Course not found'}
         </div>
       </AuthLayout>
@@ -122,27 +122,27 @@ export function TeacherCourse() {
     <AuthLayout>
       <div className="space-y-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Link to="/teacher/home" className="hover:text-gray-700">Home</Link>
+        <div className="flex items-center gap-2 text-sm text-foreground-muted">
+          <Link to="/teacher/home" className="hover:text-parchment">Home</Link>
           <span>/</span>
-          <span className="text-gray-900">{course.code}</span>
+          <span className="text-ink">{course.code}</span>
         </div>
 
         {/* Course header */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="text-sm text-purple-600 font-medium mb-1">{course.code}</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">{course.title}</h1>
-          <div className="text-gray-500">{course.term}</div>
+        <div className="bg-page rounded-[2px] border border-[#E0D4C0] p-6">
+          <div className="text-sm text-secondary font-medium mb-1">{course.code}</div>
+          <h1 className="text-2xl font-bold text-ink mb-2">{course.title}</h1>
+          <div className="text-foreground-muted">{course.term}</div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 border-b border-gray-200">
+        <div className="flex gap-4 border-b border-[#E0D4C0]">
           <button
             onClick={() => setActiveTab('students')}
             className={`pb-2 px-1 font-medium ${
               activeTab === 'students'
-                ? 'border-b-2 border-purple-500 text-purple-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-gold text-secondary'
+                : 'text-foreground-muted hover:text-parchment'
             }`}
           >
             Students ({course.students.length})
@@ -151,8 +151,8 @@ export function TeacherCourse() {
             onClick={() => setActiveTab('assessments')}
             className={`pb-2 px-1 font-medium ${
               activeTab === 'assessments'
-                ? 'border-b-2 border-purple-500 text-purple-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-gold text-secondary'
+                : 'text-foreground-muted hover:text-parchment'
             }`}
           >
             Assessments ({course.assessments.length})
@@ -163,34 +163,34 @@ export function TeacherCourse() {
         {activeTab === 'students' && (
           <section>
             {course.students.length === 0 ? (
-              <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">
+              <div className="bg-page-muted rounded-[2px] p-8 text-center text-foreground-muted">
                 No students enrolled
               </div>
             ) : (
-              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <div className="bg-page rounded-[2px] border border-[#E0D4C0] overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-page-muted">
                     <tr>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Name</th>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Email</th>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Attempts</th>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Last Active</th>
+                      <th className="text-left px-4 py-3 text-sm font-medium text-foreground-muted">Name</th>
+                      <th className="text-left px-4 py-3 text-sm font-medium text-foreground-muted">Email</th>
+                      <th className="text-left px-4 py-3 text-sm font-medium text-foreground-muted">Attempts</th>
+                      <th className="text-left px-4 py-3 text-sm font-medium text-foreground-muted">Last Active</th>
                       <th className="px-4 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-[#E0D4C0]">
                     {course.students.map((student) => (
-                      <tr key={student.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium text-gray-900">{student.name}</td>
-                        <td className="px-4 py-3 text-gray-600">{student.email}</td>
-                        <td className="px-4 py-3 text-gray-600">{student.attemptCount}</td>
-                        <td className="px-4 py-3 text-gray-500 text-sm">
+                      <tr key={student.id} className="hover:bg-page-muted">
+                        <td className="px-4 py-3 font-medium text-ink">{student.name}</td>
+                        <td className="px-4 py-3 text-foreground-muted">{student.email}</td>
+                        <td className="px-4 py-3 text-foreground-muted">{student.attemptCount}</td>
+                        <td className="px-4 py-3 text-foreground-muted text-sm">
                           {formatDate(student.lastActiveAt)}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Link
                             to={`/teacher/courses/${courseId}/students/${student.id}`}
-                            className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+                            className="text-secondary hover:text-secondary text-sm font-medium"
                           >
                             View Progress →
                           </Link>
@@ -208,34 +208,34 @@ export function TeacherCourse() {
         {activeTab === 'assessments' && (
           <section className="space-y-4">
             {course.assessments.length === 0 ? (
-              <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">
+              <div className="bg-page-muted rounded-[2px] p-8 text-center text-foreground-muted">
                 No assessments yet
               </div>
             ) : (
-              <div className="bg-white rounded-lg border border-gray-200 divide-y">
+              <div className="bg-page rounded-[2px] border border-[#E0D4C0] divide-y">
                 {course.assessments.map((assessment) => (
                   <div key={assessment.id} className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-gray-900">{assessment.title}</h3>
+                          <h3 className="font-semibold text-ink">{assessment.title}</h3>
                           <span
                             className={`px-2 py-0.5 rounded text-xs font-medium ${
                               assessment.effectiveClosed
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-green-100 text-green-700'
+                                ? 'bg-error/10 text-error border border-error/30'
+                                : 'bg-success/10 text-success border border-success/30'
                             }`}
                           >
                             {assessment.effectiveClosed ? 'Closed' : 'Open'}
                           </span>
                           {assessment.closeAtDue && (
-                            <span className="px-2 py-0.5 rounded text-xs bg-yellow-100 text-yellow-700">
+                            <span className="px-2 py-0.5 rounded text-xs bg-gold/20 text-[#8B6914] border border-gold/40">
                               Auto-close
                             </span>
                           )}
                         </div>
                         
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-4 text-sm text-foreground-muted">
                           <span>Due: {formatDate(assessment.dueAt)}</span>
                           <span>{assessment.attemptCount} attempts</span>
                           <span>{assessment.markedCount} marked</span>
@@ -244,7 +244,7 @@ export function TeacherCourse() {
                               href={assessment.pdfBlobUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline"
+                              className="text-[#2D4A6B] hover:underline"
                             >
                               📄 {assessment.pdfFileName || 'View PDF'}
                             </a>
@@ -257,8 +257,8 @@ export function TeacherCourse() {
                           onClick={() => handleToggleStatus(assessment.id, assessment.status)}
                           className={`px-3 py-1 rounded text-sm font-medium ${
                             assessment.status === 'OPEN'
-                              ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
+                              ? 'bg-error/10 text-error border border-error/30 hover:bg-error/20'
+                              : 'bg-success/10 text-success border border-success/30 hover:bg-success/20'
                           }`}
                         >
                           {assessment.status === 'OPEN' ? 'Close' : 'Reopen'}
